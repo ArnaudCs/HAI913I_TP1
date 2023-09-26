@@ -3,10 +3,13 @@ package codeanalyser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -23,13 +26,15 @@ public class CodeAnalyser {
 	public static void runAllStats(File folder) {
 		// Récupération des fichiers du projet
 		ArrayList<File> javaFiles = Parser.listJavaFilesForFolder(folder);
-		List<String> projectClasses = new ArrayList<>();
+		List<String> projectClasses = new ArrayList<String>();
 		int projectLinesOfCode = 0;
-		List<String> projectMethods = new ArrayList<>();
-		List<String> projectPackages = new ArrayList<>();
-		Map<String, List<String>> methodsByClassMap = new HashMap<>();
-		Map<String, Integer> linesByMethodsMap = new HashMap<>();
+		List<String> projectMethods = new ArrayList<String>();
+		List<String> projectPackages = new ArrayList<String>();
+		Map<String, List<String>> methodsByClassMap = new HashMap<String, List<String>>();
+		Map<String, Integer> linesByMethodsMap = new HashMap<String, Integer>();
 		Map<String, List<String>> attributesByClassMap = new HashMap<String, List<String>>();
+		List<String> topClassByMethods = new ArrayList<String>();
+		List<String> topClassByAttributes = new ArrayList<String>();
 		
 		
 		// Loop sur chaque fichier
@@ -56,6 +61,16 @@ public class CodeAnalyser {
 			}
 		}
 		
+		topClassByMethods = topClasses(methodsByClassMap);
+		topClassByAttributes = topClasses(attributesByClassMap);
+		List<String> commonTopClasses = new ArrayList<String>();
+	    
+	    for (String element : topClassByMethods) {
+	        if (topClassByAttributes.contains(element)) {
+	        	commonTopClasses.add(element);
+	        }
+	    }
+		
 		displayListString("classe", projectClasses);
 		displayNumber("ligne de codes", projectLinesOfCode);
 		displayListString("méthode", projectMethods);
@@ -65,7 +80,10 @@ public class CodeAnalyser {
 		displayListStringWithin("méthodes", "classes", methodsByClassMap);
 		displayNumberWithin("lignes de codes", "méthodes", linesByMethodsMap);
 		displayListStringWithin("attributs", "classe", attributesByClassMap);
-		
+		displayBestObjects("classes", "méthodes", topClassByMethods);
+		displayBestObjects("classes", "attributs", topClassByAttributes);
+		displayBestObjects("classes", "méthodes et d'attributs", commonTopClasses);
+		displayBestObjects("classes", "2 méthodes", moreThanXMethods(methodsByClassMap, 2));
 	}
 	
 	public static void displayNumber(String nomObjet, float number) {
@@ -119,6 +137,13 @@ public class CodeAnalyser {
 	        double averageSize = (double) totalSize / mapObjet.size();
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
 	    }
+	}
+	
+	public static void displayBestObjects(String nomObjet, String comparateur, List<String> listeObjet) {
+		System.out.println("Liste des " + nomObjet + " avec le plus de " + comparateur+ ": ");
+		for (int i = 0; i < listeObjet.size(); i++) {
+			System.out.println("-> "+ listeObjet.get(i));
+		}
 	}
 
 
@@ -207,7 +232,7 @@ public class CodeAnalyser {
 
 	    for (TypeDeclaration classe : visitor1.getClasses()) {
 	        FieldDeclaration[] fields = classe.getFields();
-	        List<String> attributeNames = new ArrayList<>();
+	        List<String> attributeNames = new ArrayList<String>();
 
 	        for (FieldDeclaration field : fields) {
 	            for (Object obj : field.fragments()) {
@@ -223,6 +248,63 @@ public class CodeAnalyser {
 
 	    return attributesByClassMap;
 	}
+	
+	
+	public static List<String> topClasses(Map<String, List<String>> methodsByClassMap) {
+	    // Calculate the threshold for the top 10%
+	    int totalClasses = methodsByClassMap.size();
+	    int threshold = (int) Math.ceil(totalClasses * 0.1);
+
+	    List<String> topClasses = new ArrayList<String>();
+
+	    List<Map.Entry<String, List<String>>> sortedClasses = new ArrayList<Entry<String, List<String>>>(methodsByClassMap.entrySet());
+	    Collections.sort(sortedClasses, new Comparator<Map.Entry<String, List<String>>>() {
+	        public int compare(Map.Entry<String, List<String>> a, Map.Entry<String, List<String>> b) {
+	            return Integer.compare(b.getValue().size(), a.getValue().size());
+	        }
+	    });
+
+	    for (int i = 0; i < threshold && i < sortedClasses.size(); i++) {
+	        topClasses.add(sortedClasses.get(i).getKey());
+	    }
+
+	    return topClasses;
+	}
+	
+	public static List<String> topMethodsByLines(Map<String, List<String>> methodsByClassMap) {
+	    List<String> topMethods = new ArrayList<String>();
+
+	    Map<String, Map<String, Integer>> allMethods= new HashMap<String, Map<String, Integer>>();
+
+	    for (List<String> methodsList: methodsByClassMap.values()) {
+	    	// Get the name of the class
+	    	// Get the methods of that class
+	    	// For each method get number of line of code
+	    	// Store everything in allMethods
+		}
+
+	    // Get the 10% methods having the most lines of codes and return that list
+
+
+	    return topMethods;
+	}
+	
+
+	public static List<String> moreThanXMethods(Map<String, List<String>> methodsByClassMap, int threshold) {
+	    List<String> classesWithMoreThanXMethods = new ArrayList<String>();
+
+	    for (Map.Entry<String, List<String>> entry : methodsByClassMap.entrySet()) {
+	        String className = entry.getKey();
+	        List<String> methods = entry.getValue();
+
+	        if (methods.size() > threshold) {
+	            classesWithMoreThanXMethods.add(className);
+	        }
+	    }
+
+	    return classesWithMoreThanXMethods;
+	}
+
 
 
 
