@@ -16,8 +16,12 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -35,7 +39,9 @@ public class CodeAnalyser {
 		Map<String, List<String>> attributesByClassMap = new HashMap<String, List<String>>();
 		List<String> topClassByMethods = new ArrayList<String>();
 		List<String> topClassByAttributes = new ArrayList<String>();
-		
+		Map<String, Integer> topMethodsByLines = new HashMap<String, Integer>();
+		Map<String, List<String>> parametersByMethodsMap = new HashMap<String, List<String>>();
+		Map<String, Map<String, List<String>>> callGraph = new HashMap<String, Map<String, List<String>>>();
 		
 		// Loop sur chaque fichier
 		for (File fileEntry : javaFiles) {
@@ -54,6 +60,8 @@ public class CodeAnalyser {
 				methodsByClassMap.putAll(methodsByClass(parse));
 				linesByMethodsMap.putAll(linesByMethods(parse));
 				attributesByClassMap.putAll(attributesByClass(parse));
+				parametersByMethodsMap.putAll(parametersByMethods(parse));
+				callGraph.putAll(buildCallGraph(parse));
 				
 				
 			} catch (IOException e) {
@@ -63,6 +71,7 @@ public class CodeAnalyser {
 		
 		topClassByMethods = topClasses(methodsByClassMap);
 		topClassByAttributes = topClasses(attributesByClassMap);
+		topMethodsByLines = topMethodsByLines(linesByMethodsMap);
 		List<String> commonTopClasses = new ArrayList<String>();
 	    
 	    for (String element : topClassByMethods) {
@@ -84,6 +93,10 @@ public class CodeAnalyser {
 		displayBestObjects("classes", "attributs", topClassByAttributes);
 		displayBestObjects("classes", "méthodes et d'attributs", commonTopClasses);
 		displayBestObjects("classes", "2 méthodes", moreThanXMethods(methodsByClassMap, 2));
+		displayBestObjects("méthodes", "lignes de codes", new ArrayList<>(topMethodsByLines.keySet()));
+		displayListStringWithin("paramètres", "méthodes", parametersByMethodsMap);
+		System.out.println("\n\n\n\n");
+		displayCallGraph(callGraph);
 	}
 	
 	public static void displayNumber(String nomObjet, float number) {
@@ -146,7 +159,35 @@ public class CodeAnalyser {
 		}
 	}
 
+	public static void displayCallGraph(Map<String, Map<String, List<String>>> callGraph) {
+	    System.out.println("Graphe d'appel:");
 
+	    for (Map.Entry<String, Map<String, List<String>>> classEntry : callGraph.entrySet()) {
+	        String className = classEntry.getKey();
+	        Map<String, List<String>> methodCalls = classEntry.getValue();
+
+	        System.out.println("Classe: " + className);
+
+	        for (Map.Entry<String, List<String>> methodEntry : methodCalls.entrySet()) {
+	            String methodName = methodEntry.getKey();
+	            List<String> calledMethods = methodEntry.getValue();
+
+	            System.out.println("-> Méthode: " + methodName);
+
+	            if (!calledMethods.isEmpty()) {
+	                System.out.println("   Appelle:");
+
+	                for (String calledMethod : calledMethods) {
+	                    System.out.println("   -> " + calledMethod);
+	                }
+	            } else {
+	                System.out.println("   Pas d'appel.");
+	            }
+	        }
+	    }
+	}
+
+	
 	
 	// navigate classes declaration
 	public static List<String> printClassInfo(CompilationUnit parse) {
@@ -249,6 +290,26 @@ public class CodeAnalyser {
 	    return attributesByClassMap;
 	}
 	
+	// Parameters by methods
+		public static Map<String, List<String>> parametersByMethods(CompilationUnit parse) {
+		    MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
+		    parse.accept(visitor1);
+		    Map<String, List<String>> parametersByMethodsMap = new HashMap<String, List<String>>();
+
+		    for (MethodDeclaration method : visitor1.getMethods()) {
+		        List<String> parametersList = new ArrayList<>();
+		        @SuppressWarnings("unchecked")
+				List<SingleVariableDeclaration> parameters = method.parameters();
+		        for (SingleVariableDeclaration parameter : parameters) {
+		            parametersList.add(parameter.getName().getIdentifier());
+		        }
+
+		        parametersByMethodsMap.put(method.getName().getIdentifier(), parametersList);
+		    }
+
+		    return parametersByMethodsMap;
+		}
+	
 	
 	public static List<String> topClasses(Map<String, List<String>> methodsByClassMap) {
 	    // Calculate the threshold for the top 10%
@@ -271,20 +332,24 @@ public class CodeAnalyser {
 	    return topClasses;
 	}
 	
-	public static List<String> topMethodsByLines(Map<String, List<String>> methodsByClassMap) {
-	    List<String> topMethods = new ArrayList<String>();
+	public static Map<String, Integer> topMethodsByLines(Map<String, Integer> methodsAndLinesMap) {
+	    Map<String, Integer> topMethods = new HashMap<>();
 
-	    Map<String, Map<String, Integer>> allMethods= new HashMap<String, Map<String, Integer>>();
+	    List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(methodsAndLinesMap.entrySet());
+	    Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>() {
+	        @Override
+	        public int compare(Map.Entry<String, Integer> a, Map.Entry<String, Integer> b) {
+	            return Integer.compare(b.getValue(), a.getValue());
+	        }
+	    });
 
-	    for (List<String> methodsList: methodsByClassMap.values()) {
-	    	// Get the name of the class
-	    	// Get the methods of that class
-	    	// For each method get number of line of code
-	    	// Store everything in allMethods
-		}
+	    int totalMethods = sortedEntries.size();
+	    int threshold = (int) Math.ceil(totalMethods * 0.1);
 
-	    // Get the 10% methods having the most lines of codes and return that list
-
+	    for (int i = 0; i < threshold && i < sortedEntries.size(); i++) {
+	        Map.Entry<String, Integer> entry = sortedEntries.get(i);
+	        topMethods.put(entry.getKey(), entry.getValue());
+	    }
 
 	    return topMethods;
 	}
@@ -306,6 +371,41 @@ public class CodeAnalyser {
 	}
 
 
+	public static Map<String, Map<String, List<String>>> buildCallGraph(CompilationUnit parse) {
+        ClassDeclarationVisitor classVisitor = new ClassDeclarationVisitor();
+        MethodInvocationVisitor invocationVisitor = new MethodInvocationVisitor();
+        parse.accept(classVisitor);
+        parse.accept(invocationVisitor);
 
+        Map<String, Map<String, List<String>>> callGraph = new HashMap<>();
+
+        for (TypeDeclaration classDeclaration : classVisitor.getClasses()) {
+            String className = classDeclaration.getName().getIdentifier();
+            Map<String, List<String>> methodCalls = new HashMap<>();
+
+            for (MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
+                String methodName = methodDeclaration.getName().getIdentifier();
+                List<String> calledMethods = new ArrayList<>();
+
+                for (MethodInvocation methodInvocation : invocationVisitor.getMethods()) {
+                    IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+                    if (methodBinding != null) {
+                        String declaringClass = methodBinding.getDeclaringClass().getQualifiedName();
+                        String invokedMethod = methodBinding.getName();
+                        
+                        if (declaringClass.equals(className) && !invokedMethod.equals(methodName)) {
+                            calledMethods.add(invokedMethod);
+                        }
+                    }
+                }
+
+                methodCalls.put(methodName, calledMethods);
+            }
+
+            callGraph.put(className, methodCalls);
+        }
+
+        return callGraph;
+    }
 
 }
