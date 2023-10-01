@@ -27,21 +27,106 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class CodeAnalyser {
 	
+	private ArrayList<File> javaFiles;
+	private List<String> projectClasses;
+	private static int projectLinesOfCode;
+	private static List<String> projectMethods;
+	private static List<String> projectPackages;
+	private static Map<String, List<String>> methodsByClassMap;
+	private static Map<String, Integer> linesByMethodsMap;
+	private static Map<String, List<String>> attributesByClassMap;
+	private static List<String> topClassByMethods;
+	private static List<String> topClassByAttributes;
+	private static Map<String, Integer> topMethodsByLines;
+	private static Map<String, List<String>> parametersByMethodsMap;
+	private static Map<String, Map<String, List<String>>> callGraph;
+	private static String cmd;
+	
+	public List<String> getProjectClasses() {
+		return projectClasses;
+	}
+	
+	public int getProjectClassesNumber() {
+		if(projectClasses != null) {
+			return projectClasses.size();
+		}
+		return -1;
+	}
+
+	public int getProjectLinesOfCode() {
+		return projectLinesOfCode;
+	}
+
+	public static List<String> getProjectMethods() {
+		return projectMethods;
+	}
+	
+	public int getProjectMethodsNumber() {
+		if(projectMethods != null) {
+			return projectMethods.size();
+		}
+		
+		return -1;
+	}
+	
+	public static List<String> getProjectPackages() {
+		return projectPackages;
+	}
+	
+	public int getProjectPackagesNumber() {
+		if(projectPackages != null) {
+			return projectPackages.size();
+		}
+		return -1;
+	}
+	
+	public static Map<String, List<String>> getMethodsByClassMap() {
+		return methodsByClassMap;
+	}
+
+	public static Map<String, Integer> getLinesByMethodsMap() {
+		return linesByMethodsMap;
+	}
+
+	public static Map<String, List<String>> getAttributesByClassMap() {
+		return attributesByClassMap;
+	}
+
+	public static List<String> getTopClassByMethods() {
+		return topClassByMethods;
+	}
+
+	public static List<String> getTopClassByAttributes() {
+		return topClassByAttributes;
+	}
+
+	public static Map<String, Integer> getTopMethodsByLines() {
+		return topMethodsByLines;
+	}
+
+	public static Map<String, List<String>> getParametersByMethodsMap() {
+		return parametersByMethodsMap;
+	}
+	
+	public String getCmd() {
+		return cmd;
+	}
+
 	public static void runAllStats(File folder) {
 		// Récupération des fichiers du projet
 		ArrayList<File> javaFiles = Parser.listJavaFilesForFolder(folder);
 		List<String> projectClasses = new ArrayList<String>();
-		int projectLinesOfCode = 0;
-		List<String> projectMethods = new ArrayList<String>();
-		List<String> projectPackages = new ArrayList<String>();
-		Map<String, List<String>> methodsByClassMap = new HashMap<String, List<String>>();
-		Map<String, Integer> linesByMethodsMap = new HashMap<String, Integer>();
-		Map<String, List<String>> attributesByClassMap = new HashMap<String, List<String>>();
-		List<String> topClassByMethods = new ArrayList<String>();
-		List<String> topClassByAttributes = new ArrayList<String>();
-		Map<String, Integer> topMethodsByLines = new HashMap<String, Integer>();
-		Map<String, List<String>> parametersByMethodsMap = new HashMap<String, List<String>>();
-		Map<String, Map<String, List<String>>> callGraph = new HashMap<String, Map<String, List<String>>>();
+		projectLinesOfCode = 0;
+		projectMethods = new ArrayList<String>();
+		projectPackages = new ArrayList<String>();
+		methodsByClassMap = new HashMap<String, List<String>>();
+		linesByMethodsMap = new HashMap<String, Integer>();
+		attributesByClassMap = new HashMap<String, List<String>>();
+		topClassByMethods = new ArrayList<String>();
+		topClassByAttributes = new ArrayList<String>();
+		topMethodsByLines = new HashMap<String, Integer>();
+		parametersByMethodsMap = new HashMap<String, List<String>>();
+		callGraph = new HashMap<String, Map<String, List<String>>>();
 		
 		// Loop sur chaque fichier
 		for (File fileEntry : javaFiles) {
@@ -93,20 +178,22 @@ public class CodeAnalyser {
 		displayBestObjects("classes", "attributs", topClassByAttributes);
 		displayBestObjects("classes", "méthodes et d'attributs", commonTopClasses);
 		displayBestObjects("classes", "2 méthodes", moreThanXMethods(methodsByClassMap, 2));
-		displayBestObjects("méthodes", "lignes de codes", new ArrayList<>(topMethodsByLines.keySet()));
+		displayBestObjects("méthodes", "lignes de codes", new ArrayList<String>(topMethodsByLines.keySet()));
 		displayListStringWithin("paramètres", "méthodes", parametersByMethodsMap);
 		System.out.println("\n\n\n\n");
 		displayCallGraph(callGraph);
 	}
-	
+
 	public static void displayNumber(String nomObjet, float number) {
 		System.out.println("Nombre de "+ nomObjet +": "+ number);
+		cmd += "Nombre de "+ nomObjet +": "+ number + "\n";
 	}
 	
 	public static void displayListString(String nomObjet, List<String> listObjet) {
 		System.out.println("Nombre de "+ nomObjet +": "+ listObjet.size());
 		for (int i = 0; i < listObjet.size(); i++) {
-			System.out.println("-> Nom "+nomObjet+": "+listObjet.get(i));			
+			System.out.println("-> Nom "+nomObjet+": "+listObjet.get(i));	
+			cmd += "-> Nom "+nomObjet+": "+listObjet.get(i) + "\n";
 		}
 	}
 	
@@ -124,12 +211,14 @@ public class CodeAnalyser {
 	        System.out.println("-> "+key + ": " + size + " "+ nomObjet);
 	        for (String string : listObjet) {
 				System.out.println("\t -> "+string);
+				cmd += "\t -> "+string + "\n";
 			}
 	    }
 
 	    if (!mapObjet.isEmpty()) {
 	        double averageSize = (double) totalSize / mapObjet.size();
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
+	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	    }
 	}
 	
@@ -144,11 +233,13 @@ public class CodeAnalyser {
 	        totalSize += value;
 
 	        System.out.println("-> " + key + ": " + value + " " + nomObjet);
+	        cmd += "-> " + key + ": " + value + " " + nomObjet + "\n";
 	    }
 
 	    if (!mapObjet.isEmpty()) {
 	        double averageSize = (double) totalSize / mapObjet.size();
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
+	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	    }
 	}
 	
@@ -156,6 +247,7 @@ public class CodeAnalyser {
 		System.out.println("Liste des " + nomObjet + " avec le plus de " + comparateur+ ": ");
 		for (int i = 0; i < listeObjet.size(); i++) {
 			System.out.println("-> "+ listeObjet.get(i));
+			cmd += "-> "+ listeObjet.get(i) + "\n";
 		}
 	}
 
@@ -173,15 +265,19 @@ public class CodeAnalyser {
 	            List<String> calledMethods = methodEntry.getValue();
 
 	            System.out.println("-> Méthode: " + methodName);
+	            cmd += "-> Méthode: " + methodName + "\n";
 
 	            if (!calledMethods.isEmpty()) {
 	                System.out.println("   Appelle:");
+	                cmd += "   Appelle:" + "\n";
 
 	                for (String calledMethod : calledMethods) {
 	                    System.out.println("   -> " + calledMethod);
+	                    cmd += "   -> " + calledMethod + "\n";
 	                }
 	            } else {
 	                System.out.println("   Pas d'appel.");
+	                cmd += "   Pas d'appel." + "\n";
 	            }
 	        }
 	    }
@@ -297,7 +393,7 @@ public class CodeAnalyser {
 		    Map<String, List<String>> parametersByMethodsMap = new HashMap<String, List<String>>();
 
 		    for (MethodDeclaration method : visitor1.getMethods()) {
-		        List<String> parametersList = new ArrayList<>();
+		        List<String> parametersList = new ArrayList<String>();
 		        @SuppressWarnings("unchecked")
 				List<SingleVariableDeclaration> parameters = method.parameters();
 		        for (SingleVariableDeclaration parameter : parameters) {
@@ -333,11 +429,10 @@ public class CodeAnalyser {
 	}
 	
 	public static Map<String, Integer> topMethodsByLines(Map<String, Integer> methodsAndLinesMap) {
-	    Map<String, Integer> topMethods = new HashMap<>();
+	    Map<String, Integer> topMethods = new HashMap<String, Integer>();
 
-	    List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(methodsAndLinesMap.entrySet());
+	    List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<Map.Entry<String, Integer>>(methodsAndLinesMap.entrySet());
 	    Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>() {
-	        @Override
 	        public int compare(Map.Entry<String, Integer> a, Map.Entry<String, Integer> b) {
 	            return Integer.compare(b.getValue(), a.getValue());
 	        }
@@ -377,15 +472,15 @@ public class CodeAnalyser {
         parse.accept(classVisitor);
         parse.accept(invocationVisitor);
 
-        Map<String, Map<String, List<String>>> callGraph = new HashMap<>();
+        Map<String, Map<String, List<String>>> callGraph = new HashMap<String, Map<String, List<String>>>();
 
         for (TypeDeclaration classDeclaration : classVisitor.getClasses()) {
             String className = classDeclaration.getName().getIdentifier();
-            Map<String, List<String>> methodCalls = new HashMap<>();
+            Map<String, List<String>> methodCalls = new HashMap<String, List<String>>();
 
             for (MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
                 String methodName = methodDeclaration.getName().getIdentifier();
-                List<String> calledMethods = new ArrayList<>();
+                List<String> calledMethods = new ArrayList<String>();
 
                 for (MethodInvocation methodInvocation : invocationVisitor.getMethods()) {
                     IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
