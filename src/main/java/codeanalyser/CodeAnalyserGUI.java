@@ -397,7 +397,7 @@ public class CodeAnalyserGUI {
 		});
 		
 		//Debug
-		mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
+		//mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
 				
 		//background
 	    //ImageIcon background = new ImageIcon("/home/e20190000683/Bureau/HAI913I_TP1/Background.png");

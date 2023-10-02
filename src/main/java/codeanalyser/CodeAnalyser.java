@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 public class CodeAnalyser {
 	
 	private ArrayList<File> javaFiles;
-	private List<String> projectClasses;
+	private List<String> projectClasses = new ArrayList<String>();
 	private static int projectLinesOfCode;
 	private static List<String> projectMethods;
 	private static List<String> projectPackages;
