@@ -52,6 +52,22 @@ public class CodeAnalyser {
 		}
 		return -1;
 	}
+	
+	public double getAverageLinesPerMethod() {
+		return averageSize(linesByMethodsMap);
+	}
+	
+	public double getAveragMethodPerClass() {
+		return averageSizeList(methodsByClassMap);
+	}
+	
+	public double getAverageAttPerClass() {
+		return averageSizeList(attributesByClassMap);
+	}
+	
+	public double getTotalParametersPerMethod() {
+		return averageSizeList(parametersByMethodsMap);
+	}
 
 	public int getProjectLinesOfCode() {
 		return projectLinesOfCode;
@@ -65,7 +81,6 @@ public class CodeAnalyser {
 		if(projectMethods != null) {
 			return projectMethods.size();
 		}
-		
 		return -1;
 	}
 	
@@ -197,6 +212,23 @@ public class CodeAnalyser {
 		}
 	}
 	
+	public static double averageSizeList(Map<String, List<String>> mapObjet) {
+		int totalSize = 0;
+	    for (Map.Entry<String, List<String>> entry : mapObjet.entrySet()) {
+	        String key = entry.getKey();
+	        List<String> listObjet = entry.getValue();
+
+	        int size = listObjet.size();
+	        totalSize += size;
+	    }
+
+	    if (!mapObjet.isEmpty()) {
+	        double averageSize = (double) totalSize / mapObjet.size();
+	        return averageSize;
+	    }
+		return -1;
+	}
+	
 	public static void displayListStringWithin(String nomObjet, String nomContainer, Map<String, List<String>> mapObjet) {
 	    System.out.println("Nombre de " + nomObjet + " par " + nomContainer + ": ");
 
@@ -216,31 +248,35 @@ public class CodeAnalyser {
 	    }
 
 	    if (!mapObjet.isEmpty()) {
-	        double averageSize = (double) totalSize / mapObjet.size();
+	        double averageSize = averageSizeList(mapObjet);
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
 	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	    }
 	}
 	
-	public static void displayNumberWithin(String nomObjet, String nomContainer, Map<String, Integer> mapObjet) {
-	    System.out.println("Nombre de " + nomObjet + " par " + nomContainer + ": ");
-
-	    int totalSize = 0;
-	    for (Map.Entry<String, Integer> entry : mapObjet.entrySet()) {
+	public static double averageSize(Map<String, Integer> mapObjet) {
+		int totalSize = 0;
+		for (Map.Entry<String, Integer> entry : mapObjet.entrySet()) {
 	        String key = entry.getKey();
 	        int value = entry.getValue();
 
 	        totalSize += value;
-
-	        System.out.println("-> " + key + ": " + value + " " + nomObjet);
-	        cmd += "-> " + key + ": " + value + " " + nomObjet + "\n";
 	    }
 
 	    if (!mapObjet.isEmpty()) {
 	        double averageSize = (double) totalSize / mapObjet.size();
-	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
-	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
+	        return averageSize;
 	    }
+	    
+	    return -1;
+	}
+	
+	public static void displayNumberWithin(String nomObjet, String nomContainer, Map<String, Integer> mapObjet) {
+	    System.out.println("Nombre de " + nomObjet + " par " + nomContainer + ": ");
+
+	    double averageSize = averageSize(mapObjet);
+        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
+        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	}
 	
 	public static void displayBestObjects(String nomObjet, String comparateur, List<String> listeObjet) {

@@ -137,17 +137,17 @@ public class CodeAnalyserGUI {
         panel_4.setBorder(new EmptyBorder(10, 10, 10, 10));
 		centerPanel.add(panel_4, BorderLayout.NORTH);
 		
-		JLabel lblNewLabel = new JLabel("Choose project path : ");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
-		lblNewLabel.setForeground(new Color(255, 255, 255));
-		panel_4.add(lblNewLabel);
+		JLabel chooseProjectLabel = new JLabel("Choose project path : ");
+		chooseProjectLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
+		chooseProjectLabel.setForeground(new Color(255, 255, 255));
+		panel_4.add(chooseProjectLabel);
 
 		
-		final JLabel choosedFilePath = new JLabel("Chosen File Path");
-		choosedFilePath.setForeground(new Color(255, 255, 255));
-		choosedFilePath.setFont(new Font("Tahoma", Font.BOLD, 13));
-		choosedFilePath.setVisible(false);
-		panel_4.add(choosedFilePath);
+		final JLabel choosedFilePathDisplay = new JLabel("Chosen File Path");
+		choosedFilePathDisplay.setForeground(new Color(255, 255, 255));
+		choosedFilePathDisplay.setFont(new Font("Tahoma", Font.BOLD, 13));
+		choosedFilePathDisplay.setVisible(false);
+		panel_4.add(choosedFilePathDisplay);
 		
 		final JButton chooseProjectBtn = new JButton("Choose Directory");
 		chooseProjectBtn.setForeground(new Color(255, 255, 255));
@@ -179,12 +179,12 @@ public class CodeAnalyserGUI {
                     File selectedFile = fileChooser.getSelectedFile();
                     filePath = selectedFile.getAbsolutePath();
                     JOptionPane.showMessageDialog(frmCodeanaliser, "Selected File : " + filePath);
-                    choosedFilePath.setText("...." + filePath.substring(Math.max(0, filePath.length() - 20)));
+                    choosedFilePathDisplay.setText("...." + filePath.substring(Math.max(0, filePath.length() - 20)));
                     
                     //Creating the folder with the source Path
                     folder = new File(filePath);
             		
-                    choosedFilePath.setVisible(true);
+                    choosedFilePathDisplay.setVisible(true);
                     chooseProjectBtn.setVisible(false);
                     discardChoosedProject.setVisible(true);
             		analyseBtn.setEnabled(true);
@@ -205,10 +205,10 @@ public class CodeAnalyserGUI {
 		panel_6.add(separatorPanel, BorderLayout.NORTH);
 		separatorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
-		JLabel lblNewLabel_1 = new JLabel("- • • • • • -");
-		lblNewLabel_1.setForeground(new Color(255, 255, 255));
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 15));
-		separatorPanel.add(lblNewLabel_1);
+		JLabel separatorLabel = new JLabel("- • • • • • -");
+		separatorLabel.setForeground(new Color(255, 255, 255));
+		separatorLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
+		separatorPanel.add(separatorLabel);
 		
 		final JPanel mainContentPanel = new JPanel();
 		panel_6.add(mainContentPanel, BorderLayout.CENTER);
@@ -235,7 +235,7 @@ public class CodeAnalyserGUI {
 		subMainContentPanel.add(classCountPanel);
 		
 		final JLabel classCountNumber = new JLabel("?");
-		classCountNumber.setForeground(new Color(255, 255, 255));
+		classCountNumber.setForeground(new Color(255, 190, 111));
 		classCountNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
 		classCountPanel.add(classCountNumber);
 		
@@ -251,7 +251,7 @@ public class CodeAnalyserGUI {
 		subMainContentPanel.add(totalCountLinesPanel);
 		
 		final JLabel totalLinesNumber = new JLabel("?");
-		totalLinesNumber.setForeground(new Color(255, 255, 255));
+		totalLinesNumber.setForeground(new Color(255, 190, 111));
 		totalLinesNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
 		totalCountLinesPanel.add(totalLinesNumber);
 		
@@ -267,7 +267,7 @@ public class CodeAnalyserGUI {
 		subMainContentPanel.add(totalMethodPanel);
 		
 		final JLabel methodCountNumber = new JLabel("?");
-		methodCountNumber.setForeground(new Color(255, 255, 255));
+		methodCountNumber.setForeground(new Color(255, 190, 111));
 		methodCountNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
 		totalMethodPanel.add(methodCountNumber);
 		
@@ -283,7 +283,7 @@ public class CodeAnalyserGUI {
 		subMainContentPanel.add(packageCountPanel);
 		
 		final JLabel packageCountNumber = new JLabel("?");
-		packageCountNumber.setForeground(new Color(255, 255, 255));
+		packageCountNumber.setForeground(new Color(255, 190, 111));
 		packageCountNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
 		packageCountPanel.add(packageCountNumber);
 		
@@ -291,6 +291,70 @@ public class CodeAnalyserGUI {
 		packageCountLabel.setForeground(new Color(255, 255, 255));
 		packageCountLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
 		packageCountPanel.add(packageCountLabel);
+		
+		//Average lines count per method panel
+		
+		JPanel avgLinesMethodPanel = new JPanel();
+		avgLinesMethodPanel.setBackground(new Color(14, 41, 84));
+		subMainContentPanel.add(avgLinesMethodPanel);
+		
+		final JLabel avgLinesMethodNumber = new JLabel("?");
+		avgLinesMethodNumber.setForeground(new Color(255, 190, 111));
+		avgLinesMethodNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgLinesMethodPanel.add(avgLinesMethodNumber);
+		
+		JLabel avgLinesMethodLabel = new JLabel("Avg Line(s)/Methods");
+		avgLinesMethodLabel.setForeground(new Color(255, 255, 255));
+		avgLinesMethodLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgLinesMethodPanel.add(avgLinesMethodLabel);
+		
+		//Average method count per class panel
+		
+		JPanel avgMethodClassPanel = new JPanel();
+		avgMethodClassPanel.setBackground(new Color(14, 41, 84));
+		subMainContentPanel.add(avgMethodClassPanel);
+		
+		final JLabel avgMethodClassNumber = new JLabel("?");
+		avgMethodClassNumber.setForeground(new Color(255, 190, 111));
+		avgMethodClassNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgMethodClassPanel.add(avgMethodClassNumber);
+		
+		JLabel avgMethodClassLabel = new JLabel("Avg Methods(s)/Classes");
+		avgMethodClassLabel.setForeground(new Color(255, 255, 255));
+		avgMethodClassLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgMethodClassPanel.add(avgMethodClassLabel);
+		
+		//Average attribute count per class panel
+		
+		JPanel avgAttClassPanel = new JPanel();
+		avgAttClassPanel.setBackground(new Color(14, 41, 84));
+		subMainContentPanel.add(avgAttClassPanel);
+		
+		final JLabel avgAttClassNumber = new JLabel("?");
+		avgAttClassNumber.setForeground(new Color(255, 190, 111));
+		avgAttClassNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgAttClassPanel.add(avgAttClassNumber);
+		
+		JLabel avgAttClassLabel = new JLabel("Avg Attribute(s)/Classes");
+		avgAttClassLabel.setForeground(new Color(255, 255, 255));
+		avgAttClassLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
+		avgAttClassPanel.add(avgAttClassLabel);
+		
+		//Average attribute count per class panel
+		
+		JPanel maxaParameterAppPanel = new JPanel();
+		maxaParameterAppPanel.setBackground(new Color(14, 41, 84));
+		subMainContentPanel.add(maxaParameterAppPanel);
+		
+		final JLabel maxaParameterAppNumber = new JLabel("?");
+		maxaParameterAppNumber.setForeground(new Color(255, 190, 111));
+		maxaParameterAppNumber.setFont(new Font("Tahoma", Font.BOLD, 25));
+		maxaParameterAppPanel.add(maxaParameterAppNumber);
+		
+		JLabel maxaParameterAppLabel = new JLabel("Max App Parameter(s) ");
+		maxaParameterAppLabel.setForeground(new Color(255, 255, 255));
+		maxaParameterAppLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
+		maxaParameterAppPanel.add(maxaParameterAppLabel);
 		
 	    
 		frmCodeanaliser.setBackground(new Color(255, 255, 255));
@@ -306,6 +370,10 @@ public class CodeAnalyserGUI {
 				methodCountNumber.setText(Integer.toString(analyse.getProjectMethodsNumber()));
 				packageCountNumber.setText(Integer.toString(analyse.getProjectPackagesNumber()));
 				classCountNumber.setText(Integer.toString(analyse.getProjectClassesNumber()));
+				avgLinesMethodNumber.setText(Double.toString(analyse.getAverageLinesPerMethod()));
+				avgMethodClassNumber.setText(Double.toString(analyse.getAveragMethodPerClass()));
+				avgAttClassNumber.setText(Double.toString(analyse.getAverageAttPerClass()));
+				maxaParameterAppNumber.setText(Double.toString(analyse.getTotalParametersPerMethod()));
 				cmdDisplayPanel.setText(analyse.getCmd());
 				subMainContentPanelWaiting.setVisible(false);
 				mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
@@ -316,7 +384,7 @@ public class CodeAnalyserGUI {
 		//Choosing another project path
 		discardChoosedProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				choosedFilePath.setText("");
+				choosedFilePathDisplay.setText("");
 				filePath = null;
 				discardChoosedProject.setVisible(false);
 				chooseProjectBtn.setVisible(true);
@@ -327,6 +395,9 @@ public class CodeAnalyserGUI {
 				mainContentPanel.remove(subMainContentPanel);
 			}
 		});
+		
+		//Debug
+		mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
 				
 		//background
 	    //ImageIcon background = new ImageIcon("/home/e20190000683/Bureau/HAI913I_TP1/Background.png");
