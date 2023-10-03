@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 public class CodeAnalyser {
 	
 	private ArrayList<File> javaFiles;
-	private List<String> projectClasses = new ArrayList<String>();
+	private List<String> projectClasses;
 	private static int projectLinesOfCode;
 	private static List<String> projectMethods;
 	private static List<String> projectPackages;
@@ -41,11 +41,7 @@ public class CodeAnalyser {
 	private static Map<String, List<String>> parametersByMethodsMap;
 	private static Map<String, Map<String, List<String>>> callGraph;
 	private static String cmd;
-	
-	public List<String> getProjectClasses() {
-		return projectClasses;
-	}
-	
+		
 	public int getProjectClassesNumber() {
 		if(projectClasses != null) {
 			return projectClasses.size();
@@ -53,30 +49,13 @@ public class CodeAnalyser {
 		return -1;
 	}
 	
-	public double getAverageLinesPerMethod() {
-		return averageSize(linesByMethodsMap);
-	}
-	
-	public double getAveragMethodPerClass() {
-		return averageSizeList(methodsByClassMap);
-	}
-	
-	public double getAverageAttPerClass() {
-		return averageSizeList(attributesByClassMap);
-	}
-	
-	public double getTotalParametersPerMethod() {
-		return averageSizeList(parametersByMethodsMap);
-	}
-
-	public int getProjectLinesOfCode() {
-		return projectLinesOfCode;
-	}
-
-	public static List<String> getProjectMethods() {
-		return projectMethods;
-	}
-	
+	public List<String> getProjectClasses() {return projectClasses;}
+	public double getAverageLinesPerMethod() {return averageSize(linesByMethodsMap);}
+	public double getAveragMethodPerClass() {return averageSizeList(methodsByClassMap);}
+	public double getAverageAttPerClass() {return averageSizeList(attributesByClassMap);}
+	public double getTotalParametersPerMethod() {return averageSizeList(parametersByMethodsMap);}
+	public int getProjectLinesOfCode() {return projectLinesOfCode;}
+	public static List<String> getProjectMethods() {return projectMethods;}
 	public int getProjectMethodsNumber() {
 		if(projectMethods != null) {
 			return projectMethods.size();
@@ -84,9 +63,7 @@ public class CodeAnalyser {
 		return -1;
 	}
 	
-	public static List<String> getProjectPackages() {
-		return projectPackages;
-	}
+	public static List<String> getProjectPackages() {return projectPackages;}
 	
 	public int getProjectPackagesNumber() {
 		if(projectPackages != null) {
@@ -95,37 +72,44 @@ public class CodeAnalyser {
 		return -1;
 	}
 	
-	public static Map<String, List<String>> getMethodsByClassMap() {
-		return methodsByClassMap;
-	}
+	public Map<String, Integer> getMethodsCountForTopClasses() {
+	    Map<String, Integer> methodsCountMap = new HashMap<String, Integer>();
 
-	public static Map<String, Integer> getLinesByMethodsMap() {
-		return linesByMethodsMap;
-	}
+	    for (String topClassName : topClassByMethods) {
+	        if (methodsByClassMap.containsKey(topClassName)) {
+	            int methodCount = methodsByClassMap.get(topClassName).size();
+	            methodsCountMap.put(topClassName, methodCount);
+	            //Test methodsCountMap.put("Test", 4);
+	        } else {
+	            methodsCountMap.put(topClassName, 0);
+	        }
+	    }
 
-	public static Map<String, List<String>> getAttributesByClassMap() {
-		return attributesByClassMap;
-	}
-
-	public static List<String> getTopClassByMethods() {
-		return topClassByMethods;
-	}
-
-	public static List<String> getTopClassByAttributes() {
-		return topClassByAttributes;
-	}
-
-	public static Map<String, Integer> getTopMethodsByLines() {
-		return topMethodsByLines;
-	}
-
-	public static Map<String, List<String>> getParametersByMethodsMap() {
-		return parametersByMethodsMap;
+	    return methodsCountMap;
 	}
 	
-	public String getCmd() {
-		return cmd;
+	public Map<String, Integer> getAttributesCountForTopClasses() {
+	    Map<String, Integer> methodsCountMap = new HashMap<String, Integer>();
+
+	    for (String topClassName : topClassByAttributes) {
+	        if (attributesByClassMap.containsKey(topClassName)) {
+	            int methodCount = attributesByClassMap.get(topClassName).size();
+	            methodsCountMap.put(topClassName, methodCount);
+	        } else {
+	            methodsCountMap.put(topClassName, 0);
+	        }
+	    }
+	    return methodsCountMap;
 	}
+	
+	public static Map<String, List<String>> getMethodsByClassMap() {return methodsByClassMap;}
+	public static Map<String, Integer> getLinesByMethodsMap() {return linesByMethodsMap;}
+	public static Map<String, List<String>> getAttributesByClassMap() {return attributesByClassMap;}
+	public static List<String> getTopClassByMethods() {return topClassByMethods;}
+	public static List<String> getTopClassByAttributes() {return topClassByAttributes;}
+	public static Map<String, Integer> getTopMethodsByLines() {return topMethodsByLines;}
+	public static Map<String, List<String>> getParametersByMethodsMap() {return parametersByMethodsMap;}
+	public String getCmd() {return cmd;}
 
 	public static void runAllStats(File folder) {
 		// Récupération des fichiers du projet

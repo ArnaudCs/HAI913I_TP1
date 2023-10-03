@@ -15,6 +15,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JPanel;
@@ -33,19 +34,29 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
+
 import javax.swing.JFileChooser;
 import javax.swing.JSeparator;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BoxLayout;
 
-
 public class CodeAnalyserGUI {
 
 	private JFrame frmCodeanaliser;
-	private static final int PADDING = 3;   // for example
 	private String filePath;
 	private File folder;
+	private Map<String, Integer> topMethodsClass;
+	private Map<String, Integer> topAttributesClass;
+	private Map<String, Integer> topLinesMethods;
 
 	/**
 	 * Launch the application.
@@ -79,7 +90,7 @@ public class CodeAnalyserGUI {
 		frmCodeanaliser.setTitle("Code Analyser");
 		frmCodeanaliser.getContentPane().setBackground(new Color(255, 255, 255));
 		frmCodeanaliser.getContentPane().setLayout(new BorderLayout(0, 0));
-		frmCodeanaliser.setMinimumSize(new Dimension(500, 300));
+		frmCodeanaliser.setMinimumSize(new Dimension(500, 500));
 		
 		JPanel panelHeader = new JPanel();
 		panelHeader.setBorder(new LineBorder(new Color(31, 110, 140), 14));
@@ -180,10 +191,6 @@ public class CodeAnalyserGUI {
                     filePath = selectedFile.getAbsolutePath();
                     JOptionPane.showMessageDialog(frmCodeanaliser, "Selected File : " + filePath);
                     choosedFilePathDisplay.setText("...." + filePath.substring(Math.max(0, filePath.length() - 20)));
-                    
-                    //Creating the folder with the source Path
-                    folder = new File(filePath);
-            		
                     choosedFilePathDisplay.setVisible(true);
                     chooseProjectBtn.setVisible(false);
                     discardChoosedProject.setVisible(true);
@@ -356,15 +363,91 @@ public class CodeAnalyserGUI {
 		maxaParameterAppLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
 		maxaParameterAppPanel.add(maxaParameterAppLabel);
 		
+		//ChartPanel
+		
+		final JPanel subMainContentChartPanel = new JPanel();
+		mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
+		subMainContentChartPanel.setBackground(new Color(14, 41, 84));
+		subMainContentChartPanel.setVisible(true);
+		subMainContentChartPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		
+		//Panel for charts
+		
+		JPanel GraphPanel = new JPanel();
+		GraphPanel.setBackground(new Color(14, 41, 84));
+		subMainContentChartPanel.add(GraphPanel);
+		
+		//Normal Chart
+		
+		final DefaultPieDataset datasetPieClassPerMethods = new DefaultPieDataset();
+
+        JFreeChart chartPieMethodPerClass = ChartFactory.createPieChart(
+                "10% Classes with largest number of methods",  // Titre du diagramme
+                datasetPieClassPerMethods,  // Ensemble de données
+                true,     // Afficher la légende
+                true,     // Activer l'outil d'infobulle
+                false);   // Ne pas générer d'URL
+
+        PiePlot plot = (PiePlot) chartPieMethodPerClass.getPlot();
+        plot.setSectionOutlinesVisible(true);
+
+        ChartPanel chartPanelPieClassPerMethod = new ChartPanel(chartPieMethodPerClass);
+        chartPanelPieClassPerMethod.setPreferredSize(new Dimension(300, 200));
+        
+        //Normal Chart
+		
+        final DefaultPieDataset datasetPieAttributesPerClass = new DefaultPieDataset();
+
+        JFreeChart chartPieAttributesPerClass = ChartFactory.createPieChart(
+                "10% Classes with largest number of attributes",  // Titre du diagramme
+                datasetPieAttributesPerClass,  // Ensemble de données
+                true,     // Afficher la légende
+                true,     // Activer l'outil d'infobulle
+                false);   // Ne pas générer d'URL
+
+        PiePlot plotAttributes = (PiePlot) chartPieAttributesPerClass.getPlot();
+        plot.setSectionOutlinesVisible(true);
+
+        ChartPanel chartPanelPieAttributesPerClass = new ChartPanel(chartPieAttributesPerClass);
+        chartPanelPieAttributesPerClass.setPreferredSize(new Dimension(300, 200));
+        
+        //Pie Chart
+        
+        DefaultPieDataset datasetPieMostLineMethods = new DefaultPieDataset();
+        datasetPieMostLineMethods.setValue("Catégorie 1", 30);
+        datasetPieMostLineMethods.setValue("Catégorie 2", 40);
+        datasetPieMostLineMethods.setValue("Catégorie 3", 20);
+
+        JFreeChart chartPieMostLineMethods = ChartFactory.createPieChart(
+                "10% Largest Methods",  // Titre du diagramme
+                datasetPieMostLineMethods,  // Ensemble de données
+                true,     // Afficher la légende
+                true,     // Activer l'outil d'infobulle
+                false);   // Ne pas générer d'URL
+
+        PiePlot plotMostLineMethods = (PiePlot) chartPieMostLineMethods.getPlot();
+        plot.setSectionOutlinesVisible(true);
+        plot.setExplodePercent("Catégorie 1", 0.15);
+
+        ChartPanel chartPanelPieMostLineMethod = new ChartPanel(chartPieMostLineMethods);
+        chartPanelPieMostLineMethod.setPreferredSize(new Dimension(300, 200));
+        
+        //Adding chartsPanel to the main GraphPanel
+        GraphPanel.add(chartPanelPieClassPerMethod);
+        GraphPanel.add(chartPanelPieAttributesPerClass);
+        GraphPanel.add(chartPanelPieMostLineMethod);
+
 	    
 		frmCodeanaliser.setBackground(new Color(255, 255, 255));
-		frmCodeanaliser.setBounds(100, 100, 1200, 700);
+		frmCodeanaliser.setBounds(100, 100, 1346, 791);
 		
 		//Anlayse button action
 		analyseBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cmdDisplayPanel.setText("Code analysis startup");
 				CodeAnalyser analyse = new CodeAnalyser();
+                //Creating the folder with the source Path
+                folder = new File(filePath + "/src");
 				CodeAnalyser.runAllStats(folder);
 				totalLinesNumber.setText(Integer.toString(analyse.getProjectLinesOfCode()));
 				methodCountNumber.setText(Integer.toString(analyse.getProjectMethodsNumber()));
@@ -376,6 +459,24 @@ public class CodeAnalyserGUI {
 				maxaParameterAppNumber.setText(Double.toString(analyse.getTotalParametersPerMethod()));
 				cmdDisplayPanel.setText(analyse.getCmd());
 				subMainContentPanelWaiting.setVisible(false);
+				topMethodsClass = analyse.getMethodsCountForTopClasses();
+				topAttributesClass = analyse.getAttributesCountForTopClasses();
+				topLinesMethods = null;
+				
+				//add infos to datasets
+				if(topMethodsClass != null) {
+					for (Map.Entry<String, Integer> entry : topMethodsClass.entrySet()) {
+						datasetPieClassPerMethods.setValue(entry.getKey() + ":" + entry.getValue(), entry.getValue());
+					}
+				}
+				
+				if(topAttributesClass != null) {
+					for (Map.Entry<String, Integer> entry : topAttributesClass.entrySet()) {
+						datasetPieAttributesPerClass.setValue(entry.getKey() + ":" + entry.getValue(), entry.getValue());
+					}
+				}
+				
+				
 				mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
 			}
 		});
@@ -397,13 +498,7 @@ public class CodeAnalyserGUI {
 		});
 		
 		//Debug
-		//mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
-				
-		//background
-	    //ImageIcon background = new ImageIcon("/home/e20190000683/Bureau/HAI913I_TP1/Background.png");
-	    ImageIcon background = new ImageIcon("C:\\Users\\arnau\\Desktop\\HAI913I_TP1\\Background.png");
-	    Image scaledImgBackground = background.getImage().getScaledInstance((int) frmCodeanaliser.getBounds().getWidth(), (int) frmCodeanaliser.getBounds().getHeight(), Image.SCALE_SMOOTH);
-	    ImageIcon scaledBackgroundImage = new ImageIcon(scaledImgBackground);
+		mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
 	    
 		frmCodeanaliser.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
