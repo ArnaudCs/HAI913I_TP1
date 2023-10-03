@@ -22,7 +22,7 @@ public class Parser {
 	//public static final String projectPath = "/home/e20190003865/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Adam
 	//public static final String projectPath = "/home/e20190000683/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Arnaud
 
-	public static final String projectPath = "C:\\Users\\arnau\\Desktop\\TP-M2\\HAI916I Intelligence Artificielle pour Génie Logiciel\\Projet 1\\GLIA-Airlines"; //Arnaud Windows
+	public static final String projectPath = "/home/e20190003865/Bureau/HAI916I_TP1/"; //Arnaud Windows
 
 	public static final String projectSourcePath = projectPath + "/src";
 	//public static final String jrePath = "/usr/lib/jvm/java-11-openjdk-amd64";
