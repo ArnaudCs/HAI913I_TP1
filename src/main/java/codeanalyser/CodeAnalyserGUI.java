@@ -2,29 +2,18 @@ package codeanalyser;
 
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.Image;
-
 import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.ImageIcon;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
-import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.awt.Font;
-import javax.swing.SwingConstants;
 import javax.swing.JPanel;
-import java.awt.GridLayout;
 import javax.swing.JButton;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -39,15 +28,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.general.PieDataset;
-
 import javax.swing.JFileChooser;
-import javax.swing.JSeparator;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.BoxLayout;
 
 public class CodeAnalyserGUI {
 
@@ -57,6 +39,7 @@ public class CodeAnalyserGUI {
 	private Map<String, Integer> topMethodsClass;
 	private Map<String, Integer> topAttributesClass;
 	private Map<String, Integer> topLinesMethods;
+	private Map<String, Integer> topAttributesMethodsClasses;
 
 	/**
 	 * Launch the application.
@@ -74,16 +57,9 @@ public class CodeAnalyserGUI {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public CodeAnalyserGUI() {
 		initialize();
 	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	
 	private void initialize() {
 		frmCodeanaliser = new JFrame();
@@ -222,6 +198,7 @@ public class CodeAnalyserGUI {
 		mainContentPanel.setLayout(new BorderLayout(0, 0));
 		
 		final JPanel subMainContentPanel = new JPanel();
+		subMainContentPanel.setBackground(new Color(14, 41, 84));
 		subMainContentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		final JPanel subMainContentPanelWaiting = new JPanel();
@@ -238,7 +215,8 @@ public class CodeAnalyserGUI {
 		//Class count panel
 		
 		JPanel classCountPanel = new JPanel();
-		classCountPanel.setBackground(new Color(14, 41, 84));
+		classCountPanel.setBackground(new Color(31, 110, 140));
+		classCountPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(classCountPanel);
 		
 		final JLabel classCountNumber = new JLabel("?");
@@ -254,7 +232,8 @@ public class CodeAnalyserGUI {
 		//Line count panel
 		
 		JPanel totalCountLinesPanel = new JPanel();
-		totalCountLinesPanel.setBackground(new Color(14, 41, 84));
+		totalCountLinesPanel.setBackground(new Color(31, 110, 140));
+		totalCountLinesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(totalCountLinesPanel);
 		
 		final JLabel totalLinesNumber = new JLabel("?");
@@ -270,7 +249,8 @@ public class CodeAnalyserGUI {
 		//Method count panel
 		
 		JPanel totalMethodPanel = new JPanel();
-		totalMethodPanel.setBackground(new Color(14, 41, 84));
+		totalMethodPanel.setBackground(new Color(31, 110, 140));
+		totalMethodPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(totalMethodPanel);
 		
 		final JLabel methodCountNumber = new JLabel("?");
@@ -286,7 +266,8 @@ public class CodeAnalyserGUI {
 		//Packages count panel
 		
 		JPanel packageCountPanel = new JPanel();
-		packageCountPanel.setBackground(new Color(14, 41, 84));
+		packageCountPanel.setBackground(new Color(31, 110, 140));
+		packageCountPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(packageCountPanel);
 		
 		final JLabel packageCountNumber = new JLabel("?");
@@ -302,7 +283,8 @@ public class CodeAnalyserGUI {
 		//Average lines count per method panel
 		
 		JPanel avgLinesMethodPanel = new JPanel();
-		avgLinesMethodPanel.setBackground(new Color(14, 41, 84));
+		avgLinesMethodPanel.setBackground(new Color(31, 110, 140));
+		avgLinesMethodPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(avgLinesMethodPanel);
 		
 		final JLabel avgLinesMethodNumber = new JLabel("?");
@@ -318,7 +300,8 @@ public class CodeAnalyserGUI {
 		//Average method count per class panel
 		
 		JPanel avgMethodClassPanel = new JPanel();
-		avgMethodClassPanel.setBackground(new Color(14, 41, 84));
+		avgMethodClassPanel.setBackground(new Color(31, 110, 140));
+		avgMethodClassPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(avgMethodClassPanel);
 		
 		final JLabel avgMethodClassNumber = new JLabel("?");
@@ -334,7 +317,8 @@ public class CodeAnalyserGUI {
 		//Average attribute count per class panel
 		
 		JPanel avgAttClassPanel = new JPanel();
-		avgAttClassPanel.setBackground(new Color(14, 41, 84));
+		avgAttClassPanel.setBackground(new Color(31, 110, 140));
+		avgAttClassPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(avgAttClassPanel);
 		
 		final JLabel avgAttClassNumber = new JLabel("?");
@@ -350,7 +334,8 @@ public class CodeAnalyserGUI {
 		//Average attribute count per class panel
 		
 		JPanel maxaParameterAppPanel = new JPanel();
-		maxaParameterAppPanel.setBackground(new Color(14, 41, 84));
+		maxaParameterAppPanel.setBackground(new Color(31, 110, 140));
+		maxaParameterAppPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		subMainContentPanel.add(maxaParameterAppPanel);
 		
 		final JLabel maxaParameterAppNumber = new JLabel("?");
@@ -366,7 +351,6 @@ public class CodeAnalyserGUI {
 		//ChartPanel
 		
 		final JPanel subMainContentChartPanel = new JPanel();
-		mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
 		subMainContentChartPanel.setBackground(new Color(14, 41, 84));
 		subMainContentChartPanel.setVisible(true);
 		subMainContentChartPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -413,10 +397,7 @@ public class CodeAnalyserGUI {
         
         //Pie Chart
         
-        DefaultPieDataset datasetPieMostLineMethods = new DefaultPieDataset();
-        datasetPieMostLineMethods.setValue("Catégorie 1", 30);
-        datasetPieMostLineMethods.setValue("Catégorie 2", 40);
-        datasetPieMostLineMethods.setValue("Catégorie 3", 20);
+        final DefaultPieDataset datasetPieMostLineMethods = new DefaultPieDataset();
 
         JFreeChart chartPieMostLineMethods = ChartFactory.createPieChart(
                 "10% Largest Methods",  // Titre du diagramme
@@ -427,16 +408,32 @@ public class CodeAnalyserGUI {
 
         PiePlot plotMostLineMethods = (PiePlot) chartPieMostLineMethods.getPlot();
         plot.setSectionOutlinesVisible(true);
-        plot.setExplodePercent("Catégorie 1", 0.15);
 
         ChartPanel chartPanelPieMostLineMethod = new ChartPanel(chartPieMostLineMethods);
         chartPanelPieMostLineMethod.setPreferredSize(new Dimension(300, 200));
+        
+        //Pie Chart
+        
+        final DefaultPieDataset datasetPieAttributesMethodsClass = new DefaultPieDataset();
+
+        JFreeChart chartPieAttributesMethodsClass = ChartFactory.createPieChart(
+                "Class that are in 10% Most Methods and Attributes",  // Titre du diagramme
+                datasetPieMostLineMethods,  // Ensemble de données
+                true,     // Afficher la légende
+                true,     // Activer l'outil d'infobulle
+                false);   // Ne pas générer d'URL
+
+        PiePlot plotAttributesMethodsClass = (PiePlot) chartPieAttributesMethodsClass.getPlot();
+        plot.setSectionOutlinesVisible(true);
+
+        ChartPanel chartPanelPieAttributesMethodsClass = new ChartPanel(chartPieAttributesMethodsClass);
+        chartPanelPieAttributesMethodsClass.setPreferredSize(new Dimension(300, 200));
         
         //Adding chartsPanel to the main GraphPanel
         GraphPanel.add(chartPanelPieClassPerMethod);
         GraphPanel.add(chartPanelPieAttributesPerClass);
         GraphPanel.add(chartPanelPieMostLineMethod);
-
+        GraphPanel.add(chartPanelPieAttributesMethodsClass);
 	    
 		frmCodeanaliser.setBackground(new Color(255, 255, 255));
 		frmCodeanaliser.setBounds(100, 100, 1346, 791);
@@ -453,15 +450,16 @@ public class CodeAnalyserGUI {
 				methodCountNumber.setText(Integer.toString(analyse.getProjectMethodsNumber()));
 				packageCountNumber.setText(Integer.toString(analyse.getProjectPackagesNumber()));
 				classCountNumber.setText(Integer.toString(analyse.getProjectClassesNumber()));
-				avgLinesMethodNumber.setText(Double.toString(analyse.getAverageLinesPerMethod()));
-				avgMethodClassNumber.setText(Double.toString(analyse.getAveragMethodPerClass()));
-				avgAttClassNumber.setText(Double.toString(analyse.getAverageAttPerClass()));
-				maxaParameterAppNumber.setText(Double.toString(analyse.getTotalParametersPerMethod()));
+				avgLinesMethodNumber.setText(new DecimalFormat("##.##").format(analyse.getAverageLinesPerMethod()));
+				avgMethodClassNumber.setText(new DecimalFormat("##.##").format(analyse.getAveragMethodPerClass()));
+				avgAttClassNumber.setText(new DecimalFormat("##.##").format(analyse.getAverageAttPerClass()));
+				maxaParameterAppNumber.setText(new DecimalFormat("##.##").format(analyse.getTotalParametersPerMethod()));
 				cmdDisplayPanel.setText(analyse.getCmd());
 				subMainContentPanelWaiting.setVisible(false);
 				topMethodsClass = analyse.getMethodsCountForTopClasses();
 				topAttributesClass = analyse.getAttributesCountForTopClasses();
-				topLinesMethods = null;
+				topLinesMethods = analyse.getLinesPerMethods();
+				topAttributesMethodsClasses = analyse.getMethodAttributeClasses();
 				
 				//add infos to datasets
 				if(topMethodsClass != null) {
@@ -476,8 +474,20 @@ public class CodeAnalyserGUI {
 					}
 				}
 				
+				if(topLinesMethods != null) {
+					for (Map.Entry<String, Integer> entry : topLinesMethods.entrySet()) {
+						datasetPieMostLineMethods.setValue(entry.getKey() + ":" + entry.getValue(), entry.getValue());
+					}
+				}
+				
+				if(topAttributesMethodsClasses != null) {
+					for (Map.Entry<String, Integer> entry : topAttributesMethodsClasses.entrySet()) {
+						datasetPieAttributesMethodsClass.setValue(entry.getKey() + ":" + entry.getValue(), entry.getValue());
+					}
+				}
 				
 				mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
+				mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
 			}
 		});
 		
@@ -494,11 +504,14 @@ public class CodeAnalyserGUI {
 				cmdDisplayPanel.setText("");
 				subMainContentPanelWaiting.setVisible(true);
 				mainContentPanel.remove(subMainContentPanel);
+				mainContentPanel.remove(subMainContentChartPanel);
 			}
 		});
 		
 		//Debug
 		mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
+		mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
+
 	    
 		frmCodeanaliser.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

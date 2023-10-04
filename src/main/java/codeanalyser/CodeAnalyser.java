@@ -29,6 +29,7 @@ public class CodeAnalyser {
 	
 	private ArrayList<File> javaFiles;
 	private List<String> projectClasses;
+	private static int classNumber;
 	private static int projectLinesOfCode;
 	private static List<String> projectMethods;
 	private static List<String> projectPackages;
@@ -43,10 +44,7 @@ public class CodeAnalyser {
 	private static String cmd;
 		
 	public int getProjectClassesNumber() {
-		if(projectClasses != null) {
-			return projectClasses.size();
-		}
-		return -1;
+		return classNumber;
 	}
 	
 	public List<String> getProjectClasses() {return projectClasses;}
@@ -56,6 +54,7 @@ public class CodeAnalyser {
 	public double getTotalParametersPerMethod() {return averageSizeList(parametersByMethodsMap);}
 	public int getProjectLinesOfCode() {return projectLinesOfCode;}
 	public static List<String> getProjectMethods() {return projectMethods;}
+	
 	public int getProjectMethodsNumber() {
 		if(projectMethods != null) {
 			return projectMethods.size();
@@ -70,6 +69,17 @@ public class CodeAnalyser {
 			return projectPackages.size();
 		}
 		return -1;
+	}
+	
+	public Map<String, Integer> getMethodAttributeClasses(){
+		HashMap<String, Integer> commonClasses = new HashMap<String, Integer>();
+        
+        for (String className : topClassByMethods) {
+            if (topClassByAttributes.contains(className)) {
+                commonClasses.put(className, 1);
+            }
+        }
+        return commonClasses;
 	}
 	
 	public Map<String, Integer> getMethodsCountForTopClasses() {
@@ -102,6 +112,7 @@ public class CodeAnalyser {
 	    return methodsCountMap;
 	}
 	
+	public Map<String, Integer> getLinesPerMethods(){return topMethodsByLines;}
 	public static Map<String, List<String>> getMethodsByClassMap() {return methodsByClassMap;}
 	public static Map<String, Integer> getLinesByMethodsMap() {return linesByMethodsMap;}
 	public static Map<String, List<String>> getAttributesByClassMap() {return attributesByClassMap;}
@@ -146,8 +157,6 @@ public class CodeAnalyser {
 				attributesByClassMap.putAll(attributesByClass(parse));
 				parametersByMethodsMap.putAll(parametersByMethods(parse));
 				callGraph.putAll(buildCallGraph(parse));
-				
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -181,6 +190,7 @@ public class CodeAnalyser {
 		displayListStringWithin("paramètres", "méthodes", parametersByMethodsMap);
 		System.out.println("\n\n\n\n");
 		displayCallGraph(callGraph);
+		classNumber = projectClasses.size();
 	}
 
 	public static void displayNumber(String nomObjet, float number) {
