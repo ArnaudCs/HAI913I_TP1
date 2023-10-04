@@ -6,14 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class Parser {
@@ -22,7 +20,7 @@ public class Parser {
 	//public static final String projectPath = "/home/e20190003865/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Adam
 	//public static final String projectPath = "/home/e20190000683/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Arnaud
 
-	public static final String projectPath = "C:\\Users\\arnau\\Desktop\\TP-M2\\HAI916I Intelligence Artificielle pour Génie Logiciel\\Projet 1\\GLIA-Airlines"; //Arnaud Windows
+	public static final String projectPath = "/home/gecko/Desktop/HAI916I_TP1/"; //Arnaud Windows
 
 	public static final String projectSourcePath = projectPath + "/src";
 	//public static final String jrePath = "/usr/lib/jvm/java-11-openjdk-amd64";
@@ -32,22 +30,22 @@ public class Parser {
 
 		// read java files
 		final File folder = new File(projectSourcePath);
-		ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
-
-		for (File fileEntry : javaFiles) {
-			String content = FileUtils.readFileToString(fileEntry);
-
-			CompilationUnit parse = parse(content.toCharArray());
-
-			// print methods info
-			printMethodInfo(parse);
-
-			// print variables info
-			printVariableInfo(parse);
-			
-			//print method invocations
-			printMethodInvocationInfo(parse);
-		}
+//		ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
+//
+//		for (File fileEntry : javaFiles) {
+//			String content = FileUtils.readFileToString(fileEntry);
+//
+//			CompilationUnit parse = parse(content.toCharArray());
+//
+//			// print methods info
+//			printMethodInfo(parse);
+//
+//			// print variables info
+//			printVariableInfo(parse);
+//			
+//			//print method invocations
+//			printMethodInvocationInfo(parse);
+//		}
 		
 		System.out.println("\n----- Infos code source -----\n");
 		CodeAnalyser.runAllStats(folder);
@@ -60,7 +58,6 @@ public class Parser {
 			if (fileEntry.isDirectory()) {
 				javaFiles.addAll(listJavaFilesForFolder(fileEntry));
 			} else if (fileEntry.getName().contains(".java")) {
-				// System.out.println(fileEntry.getName());
 				javaFiles.add(fileEntry);
 			}
 		}
@@ -76,7 +73,7 @@ public class Parser {
  
 		parser.setBindingsRecovery(true);
  
-		Map options = JavaCore.getOptions();
+		Map<?, ?> options = JavaCore.getOptions();
 		parser.setCompilerOptions(options);
  
 		parser.setUnitName("");

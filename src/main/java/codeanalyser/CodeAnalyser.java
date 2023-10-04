@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -27,8 +26,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class CodeAnalyser {
 	
-	private ArrayList<File> javaFiles;
-	private List<String> projectClasses;
+	private List<String> projectClasses = new ArrayList<String>();
+//	private ArrayList<File> javaFiles;
 	private static int classNumber;
 	private static int projectLinesOfCode;
 	private static List<String> projectMethods;
@@ -40,7 +39,7 @@ public class CodeAnalyser {
 	private static List<String> topClassByAttributes;
 	private static Map<String, Integer> topMethodsByLines;
 	private static Map<String, List<String>> parametersByMethodsMap;
-	private static Map<String, Map<String, List<String>>> callGraph;
+	private static Map<String, Map<String, Map<String, String>>> callGraph;
 	private static String cmd;
 		
 	public int getProjectClassesNumber() {
@@ -136,7 +135,7 @@ public class CodeAnalyser {
 		topClassByAttributes = new ArrayList<String>();
 		topMethodsByLines = new HashMap<String, Integer>();
 		parametersByMethodsMap = new HashMap<String, List<String>>();
-		callGraph = new HashMap<String, Map<String, List<String>>>();
+		callGraph = new HashMap<String, Map<String, Map<String, String>>>();
 		
 		// Loop sur chaque fichier
 		for (File fileEntry : javaFiles) {
@@ -174,13 +173,13 @@ public class CodeAnalyser {
 	    }
 		
 		displayListString("classe", projectClasses);
-		displayNumber("ligne de codes", projectLinesOfCode);
-		displayListString("méthode", projectMethods);
+		displayNumber("ligne de codes du projet", projectLinesOfCode);
+		displayListString("méthode du projet", projectMethods);
 		Set<String> uniquePackagesSet = new HashSet<String>(projectPackages);
 		List<String> uniquePackagesList = new ArrayList<String>(uniquePackagesSet);
 		displayListString("package", uniquePackagesList);
-		displayListStringWithin("méthodes", "classes", methodsByClassMap);
-		displayNumberWithin("lignes de codes", "méthodes", linesByMethodsMap);
+		displayListStringWithin("méthodes", "classe", methodsByClassMap);
+		displayNumberWithin("lignes de codes", "méthode", linesByMethodsMap);
 		displayListStringWithin("attributs", "classe", attributesByClassMap);
 		displayBestObjects("classes", "méthodes", topClassByMethods);
 		displayBestObjects("classes", "attributs", topClassByAttributes);
@@ -188,28 +187,27 @@ public class CodeAnalyser {
 		displayBestObjects("classes", "2 méthodes", moreThanXMethods(methodsByClassMap, 2));
 		displayBestObjects("méthodes", "lignes de codes", new ArrayList<String>(topMethodsByLines.keySet()));
 		displayListStringWithin("paramètres", "méthodes", parametersByMethodsMap);
-		System.out.println("\n\n\n\n");
+		System.out.println("\n\n");
 		displayCallGraph(callGraph);
 		classNumber = projectClasses.size();
 	}
 
 	public static void displayNumber(String nomObjet, float number) {
 		System.out.println("Nombre de "+ nomObjet +": "+ number);
-		cmd += "Nombre de "+ nomObjet +": "+ number + "\n";
+		cmd += "Nombre de "+ nomObjet +": "+ number + "\n\n";
 	}
 	
 	public static void displayListString(String nomObjet, List<String> listObjet) {
 		System.out.println("Nombre de "+ nomObjet +": "+ listObjet.size());
 		for (int i = 0; i < listObjet.size(); i++) {
 			System.out.println("-> Nom "+nomObjet+": "+listObjet.get(i));	
-			cmd += "-> Nom "+nomObjet+": "+listObjet.get(i) + "\n";
+			cmd += "-> Nom "+nomObjet+": "+listObjet.get(i) + "\n\n";
 		}
 	}
 	
 	public static double averageSizeList(Map<String, List<String>> mapObjet) {
 		int totalSize = 0;
 	    for (Map.Entry<String, List<String>> entry : mapObjet.entrySet()) {
-	        String key = entry.getKey();
 	        List<String> listObjet = entry.getValue();
 
 	        int size = listObjet.size();
@@ -224,34 +222,32 @@ public class CodeAnalyser {
 	}
 	
 	public static void displayListStringWithin(String nomObjet, String nomContainer, Map<String, List<String>> mapObjet) {
-	    System.out.println("Nombre de " + nomObjet + " par " + nomContainer + ": ");
-
-	    int totalSize = 0;
+	    System.out.println("Liste des " + nomObjet + " par " + nomContainer + ": ");
+	    int total = 0;
 	    for (Map.Entry<String, List<String>> entry : mapObjet.entrySet()) {
 	        String key = entry.getKey();
 	        List<String> listObjet = entry.getValue();
 
 	        int size = listObjet.size();
-	        totalSize += size;
-
+	        total += size;
 	        System.out.println("-> "+key + ": " + size + " "+ nomObjet);
 	        for (String string : listObjet) {
 				System.out.println("\t -> "+string);
-				cmd += "\t -> "+string + "\n";
+				cmd += "\t -> "+string + "\n\n";
 			}
 	    }
 
 	    if (!mapObjet.isEmpty()) {
 	        double averageSize = averageSizeList(mapObjet);
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
-	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
+	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n\n";
 	    }
+	    System.out.println("Total: "+ total);
 	}
 	
 	public static double averageSize(Map<String, Integer> mapObjet) {
 		int totalSize = 0;
 		for (Map.Entry<String, Integer> entry : mapObjet.entrySet()) {
-	        String key = entry.getKey();
 	        int value = entry.getValue();
 
 	        totalSize += value;
@@ -267,51 +263,56 @@ public class CodeAnalyser {
 	
 	public static void displayNumberWithin(String nomObjet, String nomContainer, Map<String, Integer> mapObjet) {
 	    System.out.println("Nombre de " + nomObjet + " par " + nomContainer + ": ");
+	    
+	    for(String key: mapObjet.keySet()) {
+			System.out.println("-> "+key+": "+mapObjet.get(key) + " " + nomObjet);	
+			cmd += "-> "+key+": "+mapObjet.get(key) + " " + nomObjet + "\n\n";
+		}
 
 	    double averageSize = averageSize(mapObjet);
         System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
-        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
+        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n\n";
 	}
 	
 	public static void displayBestObjects(String nomObjet, String comparateur, List<String> listeObjet) {
 		System.out.println("Liste des " + nomObjet + " avec le plus de " + comparateur+ ": ");
 		for (int i = 0; i < listeObjet.size(); i++) {
 			System.out.println("-> "+ listeObjet.get(i));
-			cmd += "-> "+ listeObjet.get(i) + "\n";
+			cmd += "-> "+ listeObjet.get(i) + "\n\n";
 		}
 	}
 
-	public static void displayCallGraph(Map<String, Map<String, List<String>>> callGraph) {
-	    System.out.println("Graphe d'appel:");
+	public static void displayCallGraph(Map<String, Map<String, Map<String, String>>> callGraph) {
+	    System.out.println("Graphe d'appels (sans méthodes provenants de Java:");
 
-	    for (Map.Entry<String, Map<String, List<String>>> classEntry : callGraph.entrySet()) {
+	    for (Map.Entry<String, Map<String, Map<String, String>>> classEntry : callGraph.entrySet()) {
 	        String className = classEntry.getKey();
-	        Map<String, List<String>> methodCalls = classEntry.getValue();
+	        Map<String, Map<String, String>> methodCalls = classEntry.getValue();
 
 	        System.out.println("Classe: " + className);
 
-	        for (Map.Entry<String, List<String>> methodEntry : methodCalls.entrySet()) {
+	        for (Map.Entry<String, Map<String, String>> methodEntry : methodCalls.entrySet()) {
 	            String methodName = methodEntry.getKey();
-	            List<String> calledMethods = methodEntry.getValue();
+	            Map<String, String> calledMethods = methodEntry.getValue();
 
 	            System.out.println("-> Méthode: " + methodName);
-	            cmd += "-> Méthode: " + methodName + "\n";
 
 	            if (!calledMethods.isEmpty()) {
 	                System.out.println("   Appelle:");
-	                cmd += "   Appelle:" + "\n";
 
-	                for (String calledMethod : calledMethods) {
-	                    System.out.println("   -> " + calledMethod);
-	                    cmd += "   -> " + calledMethod + "\n";
+	                for (Map.Entry<String, String> calledMethodEntry : calledMethods.entrySet()) {
+	                    String calledMethodName = calledMethodEntry.getKey();
+	                    String declaringClass = calledMethodEntry.getValue();
+
+	                    System.out.println("   -> " + calledMethodName + "  ->  " + declaringClass);
 	                }
 	            } else {
 	                System.out.println("   Pas d'appel.");
-	                cmd += "   Pas d'appel." + "\n";
 	            }
 	        }
 	    }
 	}
+
 
 	
 	
@@ -348,6 +349,7 @@ public class CodeAnalyser {
 		for (PackageDeclaration paquetage : visitor1.getPackages()) {
 			packageList.add(paquetage.getName().toString());
 		}
+		if(packageList.size() == 0) packageList.add("Default package");
 		return packageList; 
 	}
 	
@@ -495,42 +497,45 @@ public class CodeAnalyser {
 	    return classesWithMoreThanXMethods;
 	}
 
+	public static Map<String, Map<String, Map<String, String>>> buildCallGraph(CompilationUnit parse) {
+	    ClassDeclarationVisitor classVisitor = new ClassDeclarationVisitor();
+	    parse.accept(classVisitor);
 
-	public static Map<String, Map<String, List<String>>> buildCallGraph(CompilationUnit parse) {
-        ClassDeclarationVisitor classVisitor = new ClassDeclarationVisitor();
-        MethodInvocationVisitor invocationVisitor = new MethodInvocationVisitor();
-        parse.accept(classVisitor);
-        parse.accept(invocationVisitor);
+	    Map<String, Map<String, Map<String, String>>> callGraph = new HashMap<String, Map<String, Map<String, String>>>();
 
-        Map<String, Map<String, List<String>>> callGraph = new HashMap<String, Map<String, List<String>>>();
+	    for (TypeDeclaration classDeclaration : classVisitor.getClasses()) {
+	        String className = classDeclaration.getName().getIdentifier();
+	        Map<String, Map<String, String>> methodCalls = new HashMap<String, Map<String, String>>();
 
-        for (TypeDeclaration classDeclaration : classVisitor.getClasses()) {
-            String className = classDeclaration.getName().getIdentifier();
-            Map<String, List<String>> methodCalls = new HashMap<String, List<String>>();
+	        MethodDeclarationVisitor methodVisitor = new MethodDeclarationVisitor();
+	        classDeclaration.accept(methodVisitor);
 
-            for (MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
-                String methodName = methodDeclaration.getName().getIdentifier();
-                List<String> calledMethods = new ArrayList<String>();
+	        for (MethodDeclaration methodDeclaration : methodVisitor.getMethods()) {
+	            String methodName = methodDeclaration.getName().getIdentifier();
+	            Map<String, String> calledMethods = new HashMap<String, String>();
 
-                for (MethodInvocation methodInvocation : invocationVisitor.getMethods()) {
-                    IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-                    if (methodBinding != null) {
-                        String declaringClass = methodBinding.getDeclaringClass().getQualifiedName();
-                        String invokedMethod = methodBinding.getName();
-                        
-                        if (declaringClass.equals(className) && !invokedMethod.equals(methodName)) {
-                            calledMethods.add(invokedMethod);
-                        }
-                    }
-                }
+	            MethodInvocationVisitor invocationVisitor = new MethodInvocationVisitor();
+	            methodDeclaration.accept(invocationVisitor);
 
-                methodCalls.put(methodName, calledMethods);
-            }
+	            for (MethodInvocation methodInvocation : invocationVisitor.getMethods()) {
+	                String invokedMethodName = methodInvocation.getName().getIdentifier();
+	                IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+	                
+	                if (methodBinding != null) {
+	                    String declaringClassName = methodBinding.getDeclaringClass().getQualifiedName();
+	                    calledMethods.put(invokedMethodName, declaringClassName);
+	                }
+	            }
 
-            callGraph.put(className, methodCalls);
-        }
+	            methodCalls.put(methodName, calledMethods);
+	        }
 
-        return callGraph;
-    }
+	        callGraph.put(className, methodCalls);
+	    }
+
+	    return callGraph;
+	}
+
+
 
 }
