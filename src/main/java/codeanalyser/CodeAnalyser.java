@@ -39,7 +39,7 @@ public class CodeAnalyser {
 	private static List<String> topClassByAttributes;
 	private static Map<String, Integer> topMethodsByLines;
 	private static Map<String, List<String>> parametersByMethodsMap;
-	private static Map<String, Map<String, List<String>>> callGraph;
+	private static Map<String, Map<String, Map<String, String>>> callGraph;
 	private static String cmd;
 	
 	public List<String> getProjectClasses() {
