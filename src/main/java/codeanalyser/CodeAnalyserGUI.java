@@ -40,6 +40,7 @@ public class CodeAnalyserGUI {
 	private Map<String, Integer> topAttributesClass;
 	private Map<String, Integer> topLinesMethods;
 	private Map<String, Integer> topAttributesMethodsClasses;
+	private String cmdString;
 
 	/**
 	 * Launch the application.
@@ -346,7 +347,8 @@ public class CodeAnalyserGUI {
 		JLabel maxaParameterAppLabel = new JLabel("Max App Parameter(s) ");
 		maxaParameterAppLabel.setForeground(new Color(255, 255, 255));
 		maxaParameterAppLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
-		maxaParameterAppPanel.add(maxaParameterAppLabel);
+		maxaParameterAppPanel.add(maxaParameterAppLabel);		
+		
 		
 		//ChartPanel
 		
@@ -442,10 +444,18 @@ public class CodeAnalyserGUI {
 		analyseBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cmdDisplayPanel.setText("Code analysis startup");
+				Parser parser;
 				CodeAnalyser analyse = new CodeAnalyser();
-                //Creating the folder with the source Path
+				//Creating the folder with the source Path
                 folder = new File(filePath + "/src");
-				CodeAnalyser.runAllStats(folder);
+                parser = new Parser();
+				try {
+	                parser.setProjectSourcePath(filePath + "/src");
+					CodeAnalyser.runAllStats(folder);
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(frmCodeanaliser, "Error ! Please verify your selected folder");
+				}
+				
 				totalLinesNumber.setText(Integer.toString(analyse.getProjectLinesOfCode()));
 				methodCountNumber.setText(Integer.toString(analyse.getProjectMethodsNumber()));
 				packageCountNumber.setText(Integer.toString(analyse.getProjectPackagesNumber()));
@@ -454,6 +464,7 @@ public class CodeAnalyserGUI {
 				avgMethodClassNumber.setText(new DecimalFormat("##.##").format(analyse.getAveragMethodPerClass()));
 				avgAttClassNumber.setText(new DecimalFormat("##.##").format(analyse.getAverageAttPerClass()));
 				maxaParameterAppNumber.setText(new DecimalFormat("##.##").format(analyse.getTotalParametersPerMethod()));
+				cmdString = analyse.getGraphCmd();
 				cmdDisplayPanel.setText(analyse.getCmd());
 				subMainContentPanelWaiting.setVisible(false);
 				topMethodsClass = analyse.getMethodsCountForTopClasses();
@@ -503,16 +514,41 @@ public class CodeAnalyserGUI {
 				analyseBtn.setVisible(false);
 				cmdDisplayPanel.setText("");
 				subMainContentPanelWaiting.setVisible(true);
+				datasetPieClassPerMethods.clear();
+				datasetPieAttributesPerClass.clear();
+				datasetPieMostLineMethods.clear();
+				cmdString = null;
+				datasetPieAttributesMethodsClass.clear();
 				mainContentPanel.remove(subMainContentPanel);
 				mainContentPanel.remove(subMainContentChartPanel);
 			}
 		});
 		
 		//Debug
-		mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
-		mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
+		//mainContentPanel.add(subMainContentPanel, BorderLayout.CENTER);
+		//mainContentPanel.add(subMainContentChartPanel, BorderLayout.SOUTH);
+
+		JButton graphBtn = new JButton("See graph");
+		graphBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(cmdString != null) {
+					launchGraphCmd(cmdString);
+				} else {
+                    JOptionPane.showMessageDialog(frmCodeanaliser, "Error ! No CMD or graph");
+				}
+			}
+		});
+		graphBtn.setBackground(new Color(255, 128, 0));
+		graphBtn.setForeground(new Color(255, 255, 255));
+		graphBtn.setFont(new Font("Segoe UI Semibold", Font.BOLD, 28));
+		subMainContentPanel.add(graphBtn);
 
 	    
 		frmCodeanaliser.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	
+	private void launchGraphCmd(String data) {
+        CmdGraphe secondFrame = new CmdGraphe(data);
+        secondFrame.setVisible(true);
+    }
 }

@@ -20,11 +20,13 @@ public class Parser {
 	//public static final String projectPath = "/home/e20190003865/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Adam
 	//public static final String projectPath = "/home/e20190000683/Bureau/TP-M2/HAI916I Intelligence Artificielle pour Génie Logiciel/Projet 1/GLIA-Airlines/"; //Arnaud
 
-	public static final String projectPath = "/home/gecko/Desktop/HAI916I_TP1/"; //Arnaud Windows
-
-	public static final String projectSourcePath = projectPath + "/src";
+	public static String projectSourcePath;
 	//public static final String jrePath = "/usr/lib/jvm/java-11-openjdk-amd64";
 	public static final String jrePath = "";
+	
+	public void setProjectSourcePath(String filePath) {
+		Parser.projectSourcePath = filePath;
+	}
 
 	public static void main(String[] args) throws IOException {
 

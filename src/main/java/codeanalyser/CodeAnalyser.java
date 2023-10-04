@@ -41,6 +41,7 @@ public class CodeAnalyser {
 	private static Map<String, List<String>> parametersByMethodsMap;
 	private static Map<String, Map<String, Map<String, String>>> callGraph;
 	private static String cmd;
+	private static String graphCmd;
 		
 	public int getProjectClassesNumber() {
 		return classNumber;
@@ -120,6 +121,7 @@ public class CodeAnalyser {
 	public static Map<String, Integer> getTopMethodsByLines() {return topMethodsByLines;}
 	public static Map<String, List<String>> getParametersByMethodsMap() {return parametersByMethodsMap;}
 	public String getCmd() {return cmd;}
+	public String getGraphCmd() {return graphCmd;}
 
 	public static void runAllStats(File folder) {
 		// Récupération des fichiers du projet
@@ -194,14 +196,14 @@ public class CodeAnalyser {
 
 	public static void displayNumber(String nomObjet, float number) {
 		System.out.println("Nombre de "+ nomObjet +": "+ number);
-		cmd += "Nombre de "+ nomObjet +": "+ number + "\n\n";
+		cmd += "Nombre de "+ nomObjet +": "+ number + "\n";
 	}
 	
 	public static void displayListString(String nomObjet, List<String> listObjet) {
 		System.out.println("Nombre de "+ nomObjet +": "+ listObjet.size());
 		for (int i = 0; i < listObjet.size(); i++) {
 			System.out.println("-> Nom "+nomObjet+": "+listObjet.get(i));	
-			cmd += "-> Nom "+nomObjet+": "+listObjet.get(i) + "\n\n";
+			cmd += "-> Nom "+nomObjet+": "+listObjet.get(i) + "\n";
 		}
 	}
 	
@@ -233,14 +235,14 @@ public class CodeAnalyser {
 	        System.out.println("-> "+key + ": " + size + " "+ nomObjet);
 	        for (String string : listObjet) {
 				System.out.println("\t -> "+string);
-				cmd += "\t -> "+string + "\n\n";
+				cmd += "\t -> "+string + "\n";
 			}
 	    }
 
 	    if (!mapObjet.isEmpty()) {
 	        double averageSize = averageSizeList(mapObjet);
 	        System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
-	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n\n";
+	        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	    }
 	    System.out.println("Total: "+ total);
 	}
@@ -266,48 +268,55 @@ public class CodeAnalyser {
 	    
 	    for(String key: mapObjet.keySet()) {
 			System.out.println("-> "+key+": "+mapObjet.get(key) + " " + nomObjet);	
-			cmd += "-> "+key+": "+mapObjet.get(key) + " " + nomObjet + "\n\n";
+			cmd += "-> "+key+": "+mapObjet.get(key) + " " + nomObjet + "\n";
 		}
 
 	    double averageSize = averageSize(mapObjet);
         System.out.println("Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize);
-        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n\n";
+        cmd += "Nombre moyen de " + nomObjet + " par " + nomContainer + ": " + averageSize + "\n";
 	}
 	
 	public static void displayBestObjects(String nomObjet, String comparateur, List<String> listeObjet) {
 		System.out.println("Liste des " + nomObjet + " avec le plus de " + comparateur+ ": ");
 		for (int i = 0; i < listeObjet.size(); i++) {
 			System.out.println("-> "+ listeObjet.get(i));
-			cmd += "-> "+ listeObjet.get(i) + "\n\n";
+			cmd += "-> "+ listeObjet.get(i) + "\n";
 		}
 	}
 
 	public static void displayCallGraph(Map<String, Map<String, Map<String, String>>> callGraph) {
 	    System.out.println("Graphe d'appels (sans méthodes provenants de Java:");
+	    graphCmd += "==========================" + "\n";
+	    graphCmd += "|      Graphe d'appel      |" + "\n";
+	    graphCmd += "==========================" + "\n";
 
 	    for (Map.Entry<String, Map<String, Map<String, String>>> classEntry : callGraph.entrySet()) {
 	        String className = classEntry.getKey();
 	        Map<String, Map<String, String>> methodCalls = classEntry.getValue();
 
 	        System.out.println("Classe: " + className);
+	        graphCmd += "Classe: " + className + "\n";
 
 	        for (Map.Entry<String, Map<String, String>> methodEntry : methodCalls.entrySet()) {
 	            String methodName = methodEntry.getKey();
 	            Map<String, String> calledMethods = methodEntry.getValue();
 
 	            System.out.println("-> Méthode: " + methodName);
+	            graphCmd += "-> Méthode: " + methodName + "\n";
 
 	            if (!calledMethods.isEmpty()) {
 	                System.out.println("   Appelle:");
-
+	                graphCmd += "   Appelle:" + "\n";
 	                for (Map.Entry<String, String> calledMethodEntry : calledMethods.entrySet()) {
 	                    String calledMethodName = calledMethodEntry.getKey();
 	                    String declaringClass = calledMethodEntry.getValue();
 
 	                    System.out.println("   -> " + calledMethodName + "  ->  " + declaringClass);
+	                    graphCmd += "   -> " + calledMethodName + "  ->  " + declaringClass + "\n";
 	                }
 	            } else {
 	                System.out.println("   Pas d'appel.");
+	                graphCmd += "   Pas d'appel." + "\n";
 	            }
 	        }
 	    }
