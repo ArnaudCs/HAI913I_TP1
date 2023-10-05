@@ -517,7 +517,7 @@ public class CodeAnalyserGUI {
 				datasetPieClassPerMethods.clear();
 				datasetPieAttributesPerClass.clear();
 				datasetPieMostLineMethods.clear();
-				cmdString = null;
+				cmdString = "";
 				datasetPieAttributesMethodsClass.clear();
 				mainContentPanel.remove(subMainContentPanel);
 				mainContentPanel.remove(subMainContentChartPanel);
