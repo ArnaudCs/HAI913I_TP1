@@ -1,7 +1,6 @@
-<img src="./Banner/Banner.png" alt="Bannière" style="width: 100%;">
 # HAI913I TP1 Partie 2
 ## SAID Adam & COSSU Arnaud
-
+<img src="./Banner/Banner.png" alt="Bannière" style="width: 100%;">
 ### Guide d'utilisation
 
 1. Ouvrez le projet source téléchargeable depuis ce GitHub avec votre IDE.
