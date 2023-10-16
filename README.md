@@ -1,7 +1,8 @@
 # HAI913I TP1 Partie 2
 ## SAID Adam & COSSU Arnaud
-<img src="./Banner/Banner.png" alt="Bannière" style="width: 100%;">
 ### Guide d'utilisation
+
+<img src="./Banner/Banner.png" alt="Bannière" style="width: 100%;">
 
 1. Ouvrez le projet source téléchargeable depuis ce GitHub avec votre IDE.
 2. Si nécessaire résolvez les problèmes de build path en ajoutant commons-io-2.4.jar présent à la racine, au build path du projet.
