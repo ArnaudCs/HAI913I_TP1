@@ -1,4 +1,4 @@
-<img src="https://i.ibb.co/9n5sV3q/banner.png" alt="Bannière" style="width: 100%;">
+<img src="./Banner/Banner.png" alt="Bannière" style="width: 100%;">
 # HAI913I TP1 Partie 2
 ## SAID Adam & COSSU Arnaud
 
